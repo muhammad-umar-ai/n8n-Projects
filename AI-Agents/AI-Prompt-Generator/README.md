@@ -4,6 +4,13 @@ An n8n workflow that turns an initial idea into a structured, ready-to-use AI pr
 
 Built by **Muhammad Umar** | [Portfolio](https://umardev.ai.studio) | [Xetomation](https://xetomation.si)
 
+## Files
+
+- [Download the n8n workflow JSON](./workflow.json)
+- [View the workflow screenshot](./screenshot.png)
+
+![AI Prompt Generator workflow](./screenshot.png)
+
 ## What it does
 
 1. Collects the user's goal, available tools, expected inputs, and desired output.
