@@ -1,0 +1,3738 @@
+{
+  "name": "Customer Support-N8N",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        336
+      ],
+      "id": "d52201fe-a1e2-47dc-837f-51f19d47fc66",
+      "name": "Gmail Trigger",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -688,
+        336
+      ],
+      "id": "afe2b53f-583b-4734-a96f-976c0cb7b8b8",
+      "name": "Wait",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "114e1d28-d43c-4595-8f03-5baff16887d5",
+              "name": "subject",
+              "value": "= {{ $json.headers.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "0185c81d-3187-48ba-8bd0-f7eb7e4f369f",
+              "name": "body",
+              "value": "= {{ $json.textAsHtml }}",
+              "type": "string"
+            },
+            {
+              "id": "6976e48a-2b5d-4781-b194-3fb70a5c6962",
+              "name": "email address",
+              "value": "={{ $json.from.value[0].address }}",
+              "type": "string"
+            },
+            {
+              "id": "fc7f396a-20e3-4d3a-8927-692215b67b4c",
+              "name": "name",
+              "value": "={{ $json.from.value[0].name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -512,
+        336
+      ],
+      "id": "79190e70-c8a5-468e-bcc8-9844852a152e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        176
+      ],
+      "id": "87d0bd42-9825-43ed-bfb0-afac47447ee3",
+      "name": "No Operation, do nothing",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        176
+      ],
+      "id": "93f70cbc-0d98-4d52-819e-e2569d0a0b1f",
+      "name": "Wait1",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act like a senior email filtering and customer support automation specialist with deep expertise in inbox triage, intent detection, and operational efficiency for SaaS support systems.\n\nYour objective is to reliably analyze incoming emails for a customer support system and determine how they should be handled, ensuring that legitimate customer inquiries are surfaced while irrelevant, low-value, or non-actionable messages are filtered out. Your decisions directly impact support quality, response time, and customer satisfaction, so accuracy and conservative judgment are critical.\n\nTask:\nAnalyze the provided email content and classify it according to its relevance to customer support workflows, following the rules and constraints defined below.\n\nStep-by-step instructions:\n1. Read the email subject and body carefully, treating them as the only available source of information.\n2. Identify the sender’s apparent intent based solely on the content of the email.\n3. Determine whether the email was likely written by a real person seeking help, information, or resolution.\n4. Evaluate whether the email requires attention from a customer support system or agent.\n5. Apply the classification logic consistently and conservatively, prioritizing the avoidance of false negatives (i.e., missing real support emails).\n6. If any ambiguity exists, default to the outcome that ensures the email is reviewed rather than discarded.\n7. Perform a brief self-check to confirm that your decision strictly follows the rules and does not rely on assumptions beyond the text.\n\nDecision guidelines:\n- Treat emails as relevant to customer support if they include questions, issues, requests, feedback, or any indication that the sender expects a response or assistance.\n- Treat emails as not relevant to customer support if they are clearly automated, promotional, spam-like, system-generated, or otherwise non-actionable.\n- Do not infer malicious or irrelevant intent unless it is clearly supported by the content.\n\nConstraints:\n- Focus only on classification, not resolution.\n- Do not summarize, rewrite, or respond to the email.\n- Do not introduce additional categories, explanations, or commentary unless explicitly requested.\n- Follow all output format requirements exactly as specified in the prompt that uses this instruction.\n\nTake a deep breath and work on this problem step-by-step.\n",
+        "options": {
+          "systemMessage": "=Act like a senior email operations analyst specializing in automated inbox triage and workflow routing for high-volume SaaS support teams.\n\nYour objective is to decide, with high precision and conservative judgment, whether an incoming email should be ignored entirely or processed further by a human or downstream system. This decision is binary and will be used in automation, so strict rule-following and output discipline are critical.\n\nTask:\nAnalyze ONLY the provided email subject and email content, then output a single decision indicating whether the email should be processed or ignored.\n\nStep-by-step instructions:\n1. Read the email subject carefully.\n2. Read the email content carefully, treating it as the only source of truth. Do not rely on external assumptions or prior context.\n3. Determine whether the email requires any human attention or follow-up.\n4. Apply the decision rules exactly as defined below.\n5. If there is any ambiguity or uncertainty, default to PROCESS to avoid accidentally discarding important messages.\n6. Before finalizing, perform a quick self-check to ensure the decision aligns with all rules and output constraints.\n\nDecision rules:\n- Output IGNORE if the email is clearly non-actionable, including (but not limited to):\n  - Automatic replies (out-of-office, vacation responders, acknowledgements)\n  - Delivery failure notices, bounces, or system-generated notifications\n  - Messages sent from no-reply or do-not-reply addresses\n  - Obvious spam, promotions, newsletters, or marketing campaigns\n  - Messages that do not contain a question, request, issue, or need for human response\n- Output PROCESS if the email:\n  - Was written by a real person, AND\n  - Contains a question, issue, request, or message that reasonably requires review or support\n- When unsure, ambiguous, or borderline, always choose PROCESS.\n\nOutput constraints (non-negotiable):\n- Output ONLY ONE WORD\n- Valid outputs are exactly:\n  PROCESS\n  IGNORE\n- Do NOT output JSON\n- Do NOT include quotes\n- Do NOT include punctuation\n- Do NOT include explanations\n- Do NOT include line breaks\n- Do NOT include any additional text or whitespace\n\nInput:\nEmail subject:\n{{ $json.subject }}\n\nEmail content:\n {{ $json.body }}\n \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -32,
+        176
+      ],
+      "id": "9e32753f-529f-4c5a-a6f7-aaf50b17d997",
+      "name": "AI Agent",
+      "retryOnFail": false,
+      "maxTries": 5,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Gmail Trigger').item.json.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        32
+      ],
+      "id": "3b5507b4-a517-44b9-8f2d-819e54b802bf",
+      "name": "Simple Memory",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4c1dda3e-c873-49a6-8de3-d0cde9451a02",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "=PROCESS",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        288,
+        176
+      ],
+      "id": "92b020ad-2cdb-423d-8935-28285dab3f72",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        208,
+        336
+      ],
+      "id": "6a03a96c-c40f-42c2-bbe7-5e29f45b742a",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "59c82d5e-1deb-4c36-b162-4a128ff53672",
+              "leftValue": "={{ $json.body }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        336
+      ],
+      "id": "16529247-61e4-4230-8dc4-43d59ea9ee36",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act like a senior AI customer support agent designed for production use inside an automated email support system that relies exclusively on retrieval-augmented generation (RAG) using a vector database (Pinecone).\n\nYour objective is to generate accurate, safe, and trustworthy customer replies while strictly respecting information boundaries. You are optimized for reliability, not creativity. Incorrect or fabricated answers are unacceptable.\n\nTask:\nRespond to the customer’s email using ONLY the information explicitly provided in the retrieved Pinecone context.\n\nStep-by-step instructions:\n1. Carefully read the customer’s email.\n2. Carefully read ALL context retrieved from the Pinecone vector database.\n3. Determine whether the Pinecone context contains enough explicit information to fully and confidently answer the customer’s question.\n4. If the answer is fully supported by the Pinecone context:\n   - Respond clearly and concisely.\n   - Use only facts, instructions, or wording grounded in the provided context.\n   - Do not add background knowledge, explanations, or details that are not explicitly present.\n5. If the answer is partially supported, ambiguous, or completely missing from the Pinecone context:\n   - Do NOT attempt to fill gaps.\n   - Do NOT infer intent.\n   - Do NOT guess or generalize.\n   - Return the fallback response exactly as specified below.\n6. Before finalizing your response, perform a strict self-check:\n   - Every sentence must be traceable to the Pinecone context.\n   - No assumptions, inventions, or external knowledge are present.\n\nFallback response (must be used verbatim if the answer is not found in context):\n\"Thanks for your message. Your question has been forwarded to our support team and we will get back to you shortly.\"\n\nConstraints (non-negotiable):\n- Use ONLY the Pinecone-retrieved context as your source of truth.\n- Do NOT use prior knowledge or training data.\n- Do NOT speculate, infer, or hallucinate.\n- Do NOT mention Pinecone, vector databases, retrieval, or internal systems to the customer.\n- Keep the tone professional, polite, and concise.\n- Do not include internal reasoning, citations, or explanations.\n\nOutput requirements:\n- Output only the final customer-facing reply.\n- Do not include system messages, analysis, or meta commentary.\n \n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI customer support agent operating inside an automated email support system.\n\nYour responsibility is to ALWAYS:\n1. Classify the incoming email into the correct intent category.\n2. Assess urgency and sentiment.\n3. Detect risk or escalation requirements.\n4. Generate an appropriate response for the customer.\n\nIMPORTANT KNOWLEDGE RULE:\nYou must generate responses ONLY using the information provided in the knowledge context retrieved from the vector database (Pinecone).\n\nYou must NOT use your own knowledge.\nYou must NOT make assumptions.\nYou must NOT invent information.\n\nIf the required information is not found in the provided knowledge context:\n- Set requires_human_review to true\n- Generate a polite holding response stating that a human support agent will follow up\n\nYou must ALWAYS generate a response.\nYou must never return an empty response.\n\nEmail details:\n\nSubject line:\n {{ $('Edit Fields').item.json.subject }}\n\nEmail body:\n {{ $('Edit Fields').item.json.body }}\n\nKnowledge context (from Pinecone):\n You are an AI customer support agent operating inside an automated email support system.\n\nYour responsibility is to ALWAYS:\n1. Classify the incoming email into the correct intent category.\n2. Assess urgency and sentiment.\n3. Detect risk or escalation requirements.\n4. Generate an appropriate response for the customer.\n\nIMPORTANT KNOWLEDGE RULE:\nYou must generate responses ONLY using the information provided in the knowledge context retrieved from the vector database (Pinecone).\n\nYou must NOT use your own knowledge.\nYou must NOT make assumptions.\nYou must NOT invent information.\n\nIf the required information is not found in the provided knowledge context:\n- Set requires_human_review to true\n- Generate a polite holding response stating that a human support agent will follow up\n\nYou must ALWAYS generate a response.\nYou must never return an empty response.\n\nEmail details:\n\nSubject line:\n {{ $('Edit Fields').item.json.subject }}\n\nEmail body:\n {{ $('Edit Fields').item.json.body }}\n\nKnowledge context (from Pinecone):\n{{ $json.pinecone_context }}\n\nYou must follow the rules below carefully.\n\nINTENT CLASSIFICATION:\nClassify the email into ONE of the following intents:\n- Billing\n- Agency\n- Escalation\n- General inquiry\n\nURGENCY LEVEL:\nClassify urgency as one of:\n- low\n- medium\n- high\n\nSENTIMENT:\nClassify sentiment as one of:\n- positive\n- neutral\n- frustrated\n- angry\n\nRISK AND SAFETY CHECK:\nIdentify whether the message requires escalation or human review.\n\nSet requires_human_review to true if:\n- The customer is angry, threatening, or highly emotional\n- The message involves refunds, disputes, legal terms, or financial risk\n- The request is unclear or missing critical information\n- The correct or safe answer cannot be confidently determined\n- The answer is not explicitly available in the knowledge context\n\nIf requires_human_review is true:\n- Still generate a response\n- Acknowledge the concern\n- Do NOT provide definitive resolutions, promises, or policy decisions\n- Clearly state that a human support agent will follow up\n\nRESPONSE GENERATION RULES:\nThe response must be:\n- Professional and calm\n- Clear and concise\n- Helpful and reassuring\n- Appropriate for the detected intent\n- Strictly based on the knowledge context\n- Safe and non-committal when escalation is required\n- Written as a direct email reply to the customer\n\nNever mention internal systems, AI, or vector databases.\n\nReturn ONLY valid JSON in the structure below.\nDo not include explanations or extra text.\n\n\nYou must follow the rules below carefully.\n\nINTENT CLASSIFICATION:\nClassify the email into ONE of the following intents:\n\n- Information / Clarification  \n  The customer is asking for explanations, understanding how something works, setup steps, service details, policies, or general help related to the service.\n\n- Issue / Problem Report  \n  The customer is reporting a problem, error, failure, missing information, or something not working as expected and needs assistance to resolve it.\n\n- General Query  \n  The customer message is informational or conversational in nature but does not clearly indicate a specific problem or request for action.\n  Examples include greetings, broad questions, early-stage curiosity, or non-urgent inquiries.\n\n- Human Escalation / Critical Concern  \n  The customer is angry, frustrated, requesting refunds, disputing charges, mentioning legal or financial risk, or clearly requires human review or urgent attention.\n\n\nURGENCY LEVEL:\nClassify urgency as one of:\n- low\n- medium\n- high\n\nSENTIMENT:\nClassify sentiment as one of:\n- positive\n- neutral\n- frustrated\n- angry\n\nRISK AND SAFETY CHECK:\nIdentify whether the message requires escalation or human review.\n\nSet requires_human_review to true if:\n- The customer is angry, threatening, or highly emotional\n- The message involves refunds, disputes, legal terms, or financial risk\n- The request is unclear or missing critical information\n- The correct or safe answer cannot be confidently determined\n- The answer is not explicitly available in the knowledge context\n\nIf requires_human_review is true:\n- Still generate a response\n- Acknowledge the concern\n- Do NOT provide definitive resolutions, promises, or policy decisions\n- Clearly state that a human support agent will follow up\n\nRESPONSE GENERATION RULES:\nThe response must be:\n- Professional and calm\n- Clear and concise\n- Helpful and reassuring\n- Appropriate for the detected intent\n- Strictly based on the knowledge context\n- Safe and non-committal when escalation is required\n- Written as a direct email reply to the customer\n\nNever mention internal systems, AI, or vector databases.\n\nReturn ONLY valid JSON in the structure below.\nDo not include explanations or extra text.\n",
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        512,
+        160
+      ],
+      "id": "6e5a94ee-5e11-46ad-aa7f-eafca415179e",
+      "name": "AI Agent1",
+      "retryOnFail": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "=This tool searches the Pinecone vector database to retrieve relevant company knowledge and documentation.\n\nUse this tool whenever the customer asks a question about:\n- company services\n- how the system works\n- setup process\n- features or capabilities\n- pricing or plans (if available in knowledge base)\n- FAQs or general support questions\n\nThe tool returns the most relevant information from the official knowledge base.\n\nAlways use this tool BEFORE answering support-related questions.\n\nBase your final response strictly on the retrieved content.\nIf no relevant information is found, do not guess and request human follow-up.\n",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n",
+          "mode": "list",
+          "cachedResultName": "n8n"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        400
+      ],
+      "id": "a6937616-471b-4fa3-bb50-ec0ecd43a5b2",
+      "name": "Pinecone Vector Store1"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"intent\": \"billing\",\n  \"urgency_level\": \"medium\",\n  \"sentiment\": \"neutral\",\n  \"requires_human_review\": false,\n  \"response\": \"...\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        272
+      ],
+      "id": "602e7534-612e-4d65-817f-8a1acad7f972",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        64
+      ],
+      "id": "f2e0c737-95c8-44d7-a0c4-e3ea8a8a8df0",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49d3da27-c983-4bdc-a08d-e14c9a362e43",
+              "name": "intent",
+              "value": "={{ $json.output.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "9ce82358-ac01-4cf0-9f2b-8d80066fbc09",
+              "name": "urgency_level",
+              "value": "={{ $json.output.urgency_level }}",
+              "type": "string"
+            },
+            {
+              "id": "312f3960-d565-47a2-9734-3b97fa9c93d0",
+              "name": "sentiment",
+              "value": "={{ $json.output.sentiment }}",
+              "type": "string"
+            },
+            {
+              "id": "c1ec3e77-ca67-49f8-b460-ee38e5d6e76a",
+              "name": "human_review",
+              "value": "={{ $json.output.requires_human_review }}",
+              "type": "boolean"
+            },
+            {
+              "id": "47897476-8294-4ba5-b60f-ef5ca964898c",
+              "name": "response",
+              "value": "={{ $json.output.response }}",
+              "type": "string"
+            },
+            {
+              "id": "99567049-1f5b-496e-aac7-0d715ed3bf47",
+              "name": "name",
+              "value": "={{ $('Edit Fields').item.json.name }} ",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        112
+      ],
+      "id": "5b32324a-5070-429f-95bb-d5227be73aba",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Raw AI response\nconst responseText = $json.response || \"\";\n\n// Customer name fallback\nconst customerName = $json.name || \"there\";\n\n// Convert plain text into clean HTML email\nconst  Email = `\n \n\n<p>${responseText\n  .replace(/\\n\\n+/g, \"</p><p>\")   // paragraphs\n  .replace(/\\n/g, \"<br>\")}</p>\n \n`;\n\nreturn [\n  {\n    json: {\n       email:  Email\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "cf6584da-242d-410a-a4bc-42b3e137ec08",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Edit Fields1').item.json.intent }}",
+                    "rightValue": "=Information / Clarification",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "99ddc493-8ff9-484a-9ecc-74c5d7400b26"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Information / Clarification"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0c31ad5f-949a-4239-a71f-2dbb83327465",
+                    "leftValue": "= {{ $('Edit Fields1').item.json.intent }}",
+                    "rightValue": "Issue / Problem Report",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Issue / Problem Report"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9ce56371-60e7-444c-906f-c4d73946ddd4",
+                    "leftValue": "={{ $('Edit Fields1').item.json.intent }}",
+                    "rightValue": "Escalation / Critical Concern",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Escalation / Critical Concern"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "947bd8f3-ce6a-4261-8130-5159138fdc1a",
+                    "leftValue": "={{ $('Edit Fields1').item.json.intent }}",
+                    "rightValue": "General inquiry",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "General inquiry"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        512
+      ],
+      "id": "ab8dac58-e763-4c56-9135-35f0d701c01d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        272
+      ],
+      "id": "ed83d1e2-224c-4550-8870-44bda3d8e4e6",
+      "name": "Wait 4 sec",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        272
+      ],
+      "id": "c461b59d-d0c9-49c1-bfcd-ab333554c942",
+      "name": "Add label to message",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Customer Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fullName": "={{ $('Edit Fields').item.json.name }}",
+            "email": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Customer Query": "={{ $('Edit Fields').item.json.body }} ",
+            "Intent": "={{ $('AI Agent1').item.json.output.intent }}",
+            "Urgency level": "={{ $('AI Agent1').item.json.output.urgency_level }}",
+            "Sentiment": "={{ $('AI Agent1').item.json.output.sentiment }}",
+            "Requir Human Review": "={{ $('AI Agent1').item.json.output.requires_human_review }}",
+            "Email Response": "={{ $('AI Agent1').item.json.output.response }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Query",
+              "displayName": "Customer Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency level",
+              "displayName": "Urgency level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requir Human Review",
+              "displayName": "Requir Human Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Response",
+              "displayName": "Email Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        272
+      ],
+      "id": "43afad78-6637-4159-9ba8-20b495818e6e",
+      "name": "Append row in sheet",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        512
+      ],
+      "id": "9f7540f8-d97b-4ac0-86c1-1405c855841b",
+      "name": "End Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "= {{ $('Code in JavaScript').item.json.email }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        272
+      ],
+      "id": "2b7887cb-4818-4df5-b513-505be40a8f37",
+      "name": "Reply message  ",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        448
+      ],
+      "id": "8e4a777a-b91c-4b2a-aa36-9028efd02f53",
+      "name": "Wait 4 sec1",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "= {{ $('Code in JavaScript').item.json.email }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        448
+      ],
+      "id": "d1edc613-c4cf-4004-a314-46abc6485648",
+      "name": "Reply message  1",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        624
+      ],
+      "id": "5904ddff-dc99-4bac-83c1-41ec6879535b",
+      "name": "Wait 4 sec3",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "= {{ $('Code in JavaScript').item.json.email }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        624
+      ],
+      "id": "e42d801f-e440-4d17-9977-593242debb2a",
+      "name": "Reply message  3",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        448
+      ],
+      "id": "c1801aac-39e9-4dbf-8a1d-1914d1971a5b",
+      "name": "Add label to message1",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        624
+      ],
+      "id": "7d22b355-d3e5-414c-ba0c-843b7cf816a2",
+      "name": "Add label to message3",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 4
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        784
+      ],
+      "id": "895aaa88-3b49-49a8-b66a-83ab46ed0b4e",
+      "name": "Wait 4 sec4",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "= {{ $('Code in JavaScript').item.json.email }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        784
+      ],
+      "id": "404584ad-715a-410e-b08a-5ec31e1e9b22",
+      "name": "Reply message  4",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        784
+      ],
+      "id": "39572575-f7aa-4d7e-82ec-bd8b1ea3b3dd",
+      "name": "Add label to message4",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": " ",
+        "subject": "=Customer Reported an Issue – Action Required",
+        "message": "=<html>\n  <body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">\n    <p>Hi Team,</p>\n\n```\n<p>\n  A customer has reported an issue or problem that may require investigation or resolution.\n</p>\n\n<p>\n  The message indicates something is not working as expected or information may be missing.\n</p>\n\n<p>\n  <strong>Customer Record:</strong><br>\n  <a https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=sharing\n    Open customer case in Google Sheet\n  </a>\n</p>\n\n<p>\n  Please investigate and take the necessary action as soon as possible.\n</p>\n\n<p>\n  <strong>Support Automation System</strong>\n</p>\n```\n\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        448
+      ],
+      "id": "9b258b98-2b9e-4516-939f-fe7dd7da225a",
+      "name": "Send a message",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": " ",
+        "subject": "=🚨 Escalation Required – Immediate Attentio ",
+        "message": "=<html>\n  <body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">\n    <p><strong>Hi Team,</strong></p>\n\n```\n<p style=\"color: #b30000;\">\n  A customer email has been flagged as a <strong>critical concern</strong> and requires immediate human attention.\n</p>\n\n<p>\n  This case may involve:\n  <ul>\n    <li>Strong dissatisfaction or anger</li>\n    <li>Refund or billing dispute</li>\n    <li>Policy or legal sensitivity</li>\n  </ul>\n</p>\n\n<p>\n  <strong>Customer Record:</strong><br>\n  <a href=\"https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=sharing\" target=\"_blank\" style=\"color: #b30000;\">\n    Open escalation case in Google Sheet\n  </a>\n</p>\n\n<p>\n  Please prioritize this case immediately.\n</p>\n\n<p>\n  <strong>Support Automation System</strong>\n</p>\n```\n\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        624
+      ],
+      "id": "2ae312e9-4dd4-4055-99bd-c1399cd47138",
+      "name": "Send a message2",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "SUPPORT_TEAM_EMAIL@example.com",
+        "subject": "=New General Customer Query Received",
+        "message": "=<html>\n  <body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">\n    <p>Hi Team,</p>\n\n```\n<p>\n  A general customer query has been received. This message does not appear urgent but may require a follow-up.\n</p>\n\n<p>\n  <strong>Customer Record:</strong><br>\n  <a href=\"https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=sharing\" target=\"_blank\">\n    View customer information in Google Sheet\n  </a>\n</p>\n\n<p>\n  Please review and respond if required.\n</p>\n\n<p>\n  <strong>Support Automation System</strong>\n</p>\n```\n\n  </body>\n</html>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        784
+      ],
+      "id": "dc82228b-4dd6-4961-8681-245d88a1c043",
+      "name": "Send a message3",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Customer Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fullName": "={{ $('Edit Fields').item.json.name }}",
+            "email": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Customer Query": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Intent": "={{ $('AI Agent1').item.json.output.intent }}",
+            "Urgency level": "={{ $('AI Agent1').item.json.output.urgency_level }}",
+            "Sentiment": "={{ $('AI Agent1').item.json.output.sentiment }}",
+            "Requir Human Review": "={{ $('AI Agent1').item.json.output.requires_human_review }}",
+            "Email Response": "={{ $('AI Agent1').item.json.output.response }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Query",
+              "displayName": "Customer Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency level",
+              "displayName": "Urgency level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requir Human Review",
+              "displayName": "Requir Human Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Response",
+              "displayName": "Email Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        448
+      ],
+      "id": "9701069a-ca75-4f1a-b970-bbf9a65e3147",
+      "name": "Append row in sheet1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Customer Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fullName": "={{ $('Edit Fields').item.json.name }}",
+            "email": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Customer Query": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Intent": "={{ $('AI Agent1').item.json.output.intent }}",
+            "Urgency level": "={{ $('AI Agent1').item.json.output.urgency_level }}",
+            "Sentiment": "={{ $('AI Agent1').item.json.output.sentiment }}",
+            "Requir Human Review": "={{ $('AI Agent1').item.json.output.requires_human_review }}",
+            "Email Response": "={{ $('AI Agent1').item.json.output.response }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Query",
+              "displayName": "Customer Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency level",
+              "displayName": "Urgency level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requir Human Review",
+              "displayName": "Requir Human Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Response",
+              "displayName": "Email Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        624
+      ],
+      "id": "2f786380-f567-4df8-aaf6-89e292e87f70",
+      "name": "Append row in sheet2",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Customer Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fullName": "={{ $('Edit Fields').item.json.name }}",
+            "email": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Customer Query": "={{ $('Edit Fields').item.json['email address'] }}",
+            "Intent": "={{ $('AI Agent1').item.json.output.intent }}",
+            "Urgency level": "={{ $('AI Agent1').item.json.output.urgency_level }}",
+            "Sentiment": "={{ $('AI Agent1').item.json.output.sentiment }}",
+            "Requir Human Review": "={{ $('AI Agent1').item.json.output.requires_human_review }}",
+            "Email Response": "={{ $('AI Agent1').item.json.output.response }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Query",
+              "displayName": "Customer Query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency level",
+              "displayName": "Urgency level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requir Human Review",
+              "displayName": "Requir Human Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Response",
+              "displayName": "Email Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        784
+      ],
+      "id": "d41e81a9-4738-4ed9-a9f2-7b0e262ec4f0",
+      "name": "Append row in sheet3",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        416
+      ],
+      "id": "e77b87f9-c141-4e43-8129-8c1b4bdbfc1d",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        512
+      ],
+      "id": "ef8a0bef-5698-4675-9eb4-da6764b9c0fd",
+      "name": "Embeddings Google Gemini",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        368
+      ],
+      "id": "acce7fb9-c4fa-40d0-92a4-178f99e5b2b0",
+      "name": "Google Gemini Chat Model1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        624
+      ],
+      "id": "825a1dc0-0b25-4da2-90d6-b7f8f6751715",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "12evjE5UUYtipfYOs2roT5OWEhr9DIyYX",
+          "mode": "list",
+          "cachedResultName": "White Paper - Customer Service in 2025.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/12evjE5UUYtipfYOs2roT5OWEhr9DIyYX/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -192,
+        624
+      ],
+      "id": "60871c47-7246-4ce9-b796-9d0b08a13427",
+      "name": "Download file"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "n8n",
+          "mode": "list",
+          "cachedResultName": "n8n"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        624
+      ],
+      "id": "7c40d1bb-407c-4da2-923e-7b462ce7d65d",
+      "name": "Pinecone Vector Store"
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        800
+      ],
+      "id": "05b2eace-ab51-4907-9c8b-dcf5bcf31b70",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        800
+      ],
+      "id": "f9f7d0b5-97ad-4be7-b661-5ea1465a0723",
+      "name": "Embeddings Google Gemini1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=New Customer Inquiry – Information Required",
+        "message": "=<html>\n  <body style=\"font-family: Arial, sans-serif; line-height: 1.6;\">\n    <p>Hi Team,</p>\n\n```\n<p>\n  A new customer email has been received that requires clarification or informational support.\n</p>\n\n<p>\n  The customer is seeking guidance or explanation related to our services, process, or general setup.\n</p>\n\n<p>\n  <strong>Customer Record:</strong><br>\n https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=sharing\n    View customer details in Google Sheet\n \n</p>\n\n<p>\n  Please review the message and provide the appropriate response if needed.\n</p>\n\n<p>\n  <strong>Support Automation System</strong>\n</p>\n```\n\n  </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        272
+      ],
+      "id": "ee9d6d17-a7ee-42c2-ac16-cfc6bd35c954",
+      "name": "Create a draft",
+      "webhookId": "YOUR_WEBHOOK_ID",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Pinecone Vector Store": [
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 1,
+                "to": 35
+              }
+            }
+          },
+          "pageContent": "CUSTOMER\nEXPERIENCE\nTRENDS TO WATCH\nIN 2025\n\nTable of Content\nIntroduction\n1\n4\nKey Strategies for CX Innovation\n3\nAI as the Cornerstone of CX Evolution\n2\nShaping the Future: Navigating the Evolving Landscape\nof Customer Experience in 2025\n6\nOmnichannel Consistency\n7\nTrust and Safety: Non-Negotiables in the Digital Age\n5\nWorth Expanding More in Depth: From Personalisation \nto Hyper-Personalisation\n10\nSummary\n9\nCX Metrics That Matter in the Future\n8\nThe Integration of Digital and Human Touchpoints\n11\nA Few Words About Conectys\n12\nContact Us\n2\nwww.conectys.com\nWHITE PAPER"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 37,
+                "to": 53
+              }
+            }
+          },
+          "pageContent": "0\nwww.conectys.com\nCASE STUDY\n3\nwww.conectys.com\nWHITE PAPER\nImagine losing a third of your customers in a single day—gone, permanently. A PWC study on CX\nhighlights  how  easily  this  can  happen  after  just  one  negative  interaction.  It  underscores  the\nfragility   of   consumer   loyalty   in   today’s   competitive   market   and   the   critical   importance   of\nconsistently delivering exceptional experiences.\nIntroduction\nWhile  constructing  a  robust  and  effective  framework  is  challenging,  it  is  a  worthwhile  endeavour.\nAccording  to  the  same  PWC  report,  nearly  75%  of  consumers  consider  CX  a  key  factor  in  their\npurchasing decisions, and approximately half are willing to pay a premium for services that deliver\nsatisfying, unparalleled interactions.\nUltimately, every detail matters—from a compelling strategy to methods and tools that modernise\noperations, improve productivity, and enable deep personalisation."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 52,
+                "to": 62
+              }
+            }
+          },
+          "pageContent": "Ultimately, every detail matters—from a compelling strategy to methods and tools that modernise\noperations, improve productivity, and enable deep personalisation.\nMoreover,  today,  AI  lies  at  the  heart  of  the  CX  transformation,  offering  extraordinary  efficiencies,\nimpactful optimisations, and innovative ways to engage buyers. However, artificial intelligence is not\nhere  to  replace  people.  Instead,  its  role  is  to  support  agents,  enabling  smarter,  faster,  and  more\nmeaningful connections.\nYet, while AI is a key driver, other factors like omnichannel consistency, data privacy, and consumer\ntrust are equally influential. Together, these elements create an interconnected framework to cultivate\na holistic, efficient, and customer-centric experience.\nThis white paper explores the game-changing solutions reshaping CX in 2025 and how organisations\ncan leverage these trends to stay ahead in an evolving market."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 64,
+                "to": 84
+              }
+            }
+          },
+          "pageContent": "4\nwww.conectys.com\nWHITE PAPER\nShaping the Future: Navigating the Evolving\nLandscape of Customer Experience in 2025\nFor  instance,  a  few  decades  ago,  buying  new  shoes\ninvolved  visiting  the  nearby  point  of  sale,  where  the\noutcome largely depended on the salesperson's skills\nand  product  quality.  Consequently,  CX  these  days  is\noften seen as a secondary function, lumped together\nwith marketing or support, without dedicated teams,\nleadership, or strategic focus.\nToday,  the  number  of  stores  and  brands  is  limitless,\nwith  online  shopping  options  and  delivery  available\nfrom every corner of the globe. The same shoes can be\nbought in a brick-and-mortar boutique, but they can\nalso be ordered virtually from digital sellers in Italy or\nChina.  This  creates  huge  pressure  on  businesses  to\ndifferentiate   themselves   and   nurture   retention\nthrough  outstanding  CX,   as  loyalty  to  specific\nproviders holds quite a different meaning."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 82,
+                "to": 92
+              }
+            }
+          },
+          "pageContent": "differentiate   themselves   and   nurture   retention\nthrough  outstanding  CX,   as  loyalty  to  specific\nproviders holds quite a different meaning.\nWith  vast  shopping  options,  unprecedented  accessibility,  online  impulse  purchases,  and  evolving\nhabits,  supporting  consumers  throughout  their  journey  has  become  increasingly  complex  and\ndemanding.  A  one-time  strategy  is  no  longer  effective,  nor  is  a  one-size-fits-all  approach.  CX\nprocesses, tools, and technologies must be evaluated frequently while maintaining the flexibility to\nimplement updates swiftly in response to urgent changes in trends and expectations.\nCustomers  have  always  valued  shopping  experiences  since  the  earliest  times.\nAncient  Roman  merchants,  much  like  their  counterparts  in  Mesopotamia,  Egypt,\nand  China,  recognised  that  the  quality  of  their  goods  and  the  strength  of  their"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 91,
+                "to": 100
+              }
+            }
+          },
+          "pageContent": "Ancient  Roman  merchants,  much  like  their  counterparts  in  Mesopotamia,  Egypt,\nand  China,  recognised  that  the  quality  of  their  goods  and  the  strength  of  their\nrelationships  with  buyers  were  crucial  to  trade  success.  They  prioritised  building\nloyalty  through  personalised  interactions  and  fostering  attachment  by  offering\nincentives to encourage repeat business—all within the limits of their capabilities.\nThis  highlights  the  enduring  importance  of  CX  efforts,  which  have  consistently\nevolved to balance trust, engagement, and community across eras.\nThe  situation  has  changed  dramatically  in  our  century  due  to  technological  breakthroughs  that\nrevolutionised how we work, spend leisure time, access information, shop, interact with brands, and share\nopinions.  Digitalisation,  mobility,  automation,  and  AI  have  driven  incredible  progress,  fostering  unique"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 100,
+                "to": 102
+              }
+            }
+          },
+          "pageContent": "opinions.  Digitalisation,  mobility,  automation,  and  AI  have  driven  incredible  progress,  fostering  unique\nconsumer  centricity,  creating  multiplied  touchpoints,  and  bringing  an  immense  array  of  tools  and\nstrategies at companies' disposal to attract buyers and encourage repeat business."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 104,
+                "to": 129
+              }
+            }
+          },
+          "pageContent": "5\nwww.conectys.com\nWHITE PAPER\nA 20% boost in satisfaction\nthrough experience-driven\nstrategies can lead to financial\ngains, including a 15–25% increase\nin cross-selling rates (McKinsey).\nCompanies that focus on\nenhancing their CX processes\ncan grow their revenue by 4–8%\nabove the market average\n(Bain & Company).\nFrom Reactive to Proactive CX\nThe shift towards prioritising customer experience marks an\nevolution  from  reactive  services  to  proactive,  journey-\nfocused strategies. Approaches once deemed adequate are\nnow unthinkable, as the demand for personalised, seamless,\nand  responsive  interactions  has  become  essential  across\nindustries, scales, and geographies. The growth here is well-\ndocumented, as evidenced by the following:\nIn 2010, only 36% of companies reported competing\nprimarily on CX which surged to nearly 75% by 2017.\nApproximately 65% of companies had a Chief Experience\nOfficer (CXO) or equivalent executive in 2017, which grew\nto almost 90% by 2020 (Gartner)."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 126,
+                "to": 142
+              }
+            }
+          },
+          "pageContent": "primarily on CX which surged to nearly 75% by 2017.\nApproximately 65% of companies had a Chief Experience\nOfficer (CXO) or equivalent executive in 2017, which grew\nto almost 90% by 2020 (Gartner).\nThe Imperative of CX Excellence\nConsequently, excelling in CX today with the right talent, solutions, and processes is no longer optional—it\nis obligatory for survival. Brands with innovative ideas, advanced technologies, and strategic execution are\nfar more likely to thrive in an increasingly competitive market. This trend is unmistakable, as highlighted by\nthe following statistics:\nRemarkable CX strongly influence\nmore than two-thirds of customer\nloyalty, surpassing the combined\nimpact of brand and price\n(Gartner).\nThe Rising Tide of Expectations\nFrom a consumer perspective, expectations for exceptional brand engagement at every stage have risen\nsignificantly and continue to evolve, leaving little room for error, especially with buyers' increasing tendency"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 142,
+                "to": 159
+              }
+            }
+          },
+          "pageContent": "significantly and continue to evolve, leaving little room for error, especially with buyers' increasing tendency\nto share their points of view—both positive and negative. Below are key insights gathered by HubSpot,\nexpressing what CX teams are encountering:\nof CX leaders report that buyer\nexpectations have reached an \nall-time high, surpassing previous\nbenchmarks.\n90%\nof contact centre employees\nnote that consumers are more\ninformed and aware than ever\nbefore.\n79%\n85%\nof support agents agree that\nbuyers are increasingly likely to\nshare both positive and negative\nexperiences."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 161,
+                "to": 180
+              }
+            }
+          },
+          "pageContent": "6\nwww.conectys.com\nWHITE PAPER\n61%\n60%\n63%\nThe Growing Pressure on CX Teams\nUltimately,  the  intensity  and  frequency  of  brand-client  interactions  have  escalated,  with  more  inquiries,\nphone  calls,  and  digital  touchpoints  driving  increased  engagement.  At  the  same  time,  CX  teams  are\nstruggling to keep up with the growing demand for speed, efficiency, and immediate responses. Moreover,\ntalent  shortages  have  become  a  significant  challenge,  hindering  companies'  ability  to  meet  these  rising\nneeds and maintain high-quality service. The following statistics further highlight this:\nof consumers say that quick resolution times are critical to\ntheir experience with a company (Forrester).\nof contact centres are currently facing a\nstaffing shortage (Deloitte).\nof CX leaders report an increase in\ntotal calls (Gartner).\nEffective Problem-solving\nTo  thrive,  businesses  must  act  quickly  and  strategically  as  the  CX  landscape  evolves,  driven  by"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 177,
+                "to": 187
+              }
+            }
+          },
+          "pageContent": "of CX leaders report an increase in\ntotal calls (Gartner).\nEffective Problem-solving\nTo  thrive,  businesses  must  act  quickly  and  strategically  as  the  CX  landscape  evolves,  driven  by\nemerging  technologies—particularly  artificial  intelligence  and  advanced  automation—and  shifting\nshopper  behaviour.  In  this  new  era,  innovations  and  human  insight  must  collaborate  to  deliver\nsmarter, more personalised, and secure interactions—faster and more accurately. \nCX initiatives must become more dynamic, leveraging self-service tools like AI-powered chatbots and\nhuman-like   virtual   assistants   to   offer   greater   control   and   efficiency.   At   the   same   time,   agents’\nempathy  and  cultural  alignment  will  be  critical  to  building  emotional  connections.  Delivering  real-\ntime, tailored experiences across channels will also be essential for success."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 189,
+                "to": 204
+              }
+            }
+          },
+          "pageContent": "7\nwww.conectys.com\nWHITE PAPER\nAI as the Cornerstone of CX Evolution\nEvery detail in CX is crucial for fostering a positive,\nlong-lasting buyer relationship—from initial contact\nto final purchase and beyond. This underscores the\nneed for careful planning, data-driven insights, and a\ndeep understanding of consumer needs to create\nimpactful interactions and ensure continuous\nexceptional experiences amid dynamic economic,\ntechnological, and sentiment shifts.\nArtificial  intelligence  will  become  increasingly  central  to  companies’  CX  strategies  and  daily  customer\nsupport operations within the  following years. While AI has already transformed buyer interactions, its role\nwill  deepen,  moving  beyond  task  automation  to  drive  intelligent,  adaptable,  and  highly  customised\nsolutions.  From  tailored  interactions  to  autonomous  systems,  AI  will  further  revolutionise  how  brands"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 204,
+                "to": 213
+              }
+            }
+          },
+          "pageContent": "solutions.  From  tailored  interactions  to  autonomous  systems,  AI  will  further  revolutionise  how  brands\nconnect with consumers, delivering faster, more consistent service and fostering seamless engagement.\nThis technological shift will enable companies to restructure resources, processes, and workflows, allowing\nAI to operate fully and continuously reshape the business processes.\nOrganisations  worldwide  are  rapidly  experimenting  with  AI  due  to  its  capabilities  and  demand  for\nimprovement. In 2023, the AI market was valued at $200 billion, with projections to exceed $1.8 trillion by\n2030.  This  growth  is  driven  by  advancements  in  machine  learning,  deep  learning,  NLP,  and  robotics,\nalongside increasing AI adoption across industries (Statista). By 2025, AI is expected to shift from broad\napplications to tailored business solutions (Forbes).\nUltimately, we have selected the top 8 critical AI technologies with the highest potential impact on"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 212,
+                "to": 227
+              }
+            }
+          },
+          "pageContent": "applications to tailored business solutions (Forbes).\nUltimately, we have selected the top 8 critical AI technologies with the highest potential impact on\nCX. These include:\nMachine Learning (ML): ML enables systems to learn from data and improve over time. It forms the\nfoundation for AI applications like personalisation and process automation, enhancing efficiency\nand customer engagement.\nDeep Learning (DL): As a subset of ML, Deep Learning tackles complex tasks such as image and\nspeech recognition. Its advanced capabilities drive innovations, facilitating immersive CX and\nsmarter decision-making.\nBuilding a robust CX framework requires a focused\napproach to selecting the right mix of elements. \nA thorough review—both in advance and\ncontinuously—identifies those that best align with\nthe company’s goals and offer the greatest potential\nfor empowerment, positioning the company as a key\ndifferentiator."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 229,
+                "to": 242
+              }
+            }
+          },
+          "pageContent": "8\nwww.conectys.com\nWHITE PAPER\nNatural Language Processing (NLP): NLP enables machines to understand human language,\npowering applications like chatbots and voice assistants. It fosters natural interactions, helping\nbusinesses engage consumers more effectively.\nPredictive Analytics: This technology leverages historical data to forecast future trends. In CX, it\nanticipates buyer needs and preferences, supporting proactive and targeted interactions.\nSentiment Analysis: Using NLP and other techniques, it evaluates customer sentiment in text or\nspeech, offering insights into emotions and enabling empathetic, thoughtful responses.\nVoice Recognition: These tech solutions detect voices and process spoken commands, allowing\nseamless, personalised voice-based interactions. They enhance accessibility and convenience,\nespecially in customer support and related areas.\nSelf-Learning AI: It dynamically adjusts to shopper needs and is designed to adapt and evolve"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 241,
+                "to": 253
+              }
+            }
+          },
+          "pageContent": "especially in customer support and related areas.\nSelf-Learning AI: It dynamically adjusts to shopper needs and is designed to adapt and evolve\nthrough data and experience. This fosters continuous improvement in delivering deeply\ncustomised services.\nReal-Time Data Processing: This method processes data instantly, enabling quick, informed\ndecisions and fostering faster, more relevant interactions for highly personalised, timely responses.\nAutomation and Workflow Tools: These tools are designed to streamline tasks such as ticket\nrouting, scheduling, and case management. Improving operational efficiency ensures faster issue\nresolution and delivers consistent, high-quality CX.\nData: The Engine Driving AI Innovation\nIn the AI-driven progressing CX evolution era, data stands as the central\nasset,  fueling  the  insights  and  predictive  tools  essential  for  impactful\ndecision-making.  This  creates  the  necessity  to  enhance  data  collection"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 252,
+                "to": 266
+              }
+            }
+          },
+          "pageContent": "asset,  fueling  the  insights  and  predictive  tools  essential  for  impactful\ndecision-making.  This  creates  the  necessity  to  enhance  data  collection\nthrough  tools  like  IoT,  connected  devices,  and  behavioural  tracking,\nwhich  provide  granular  insights  for  refined  segmentation  and\npersonalisation. \nTo  maximise  its  potential,  companies  must  prioritise  data  quality,\nintegrity, and usability at every stage of AI-driven processes. Advanced\ncleaning,  transformation,  and  integration  tools  are  vital  to  ensure  data\nconsistency,  accuracy,  and  reliability.  However,  even  the  most\nsophisticated  AI  technologies  cannot  deliver  effective  results  without\nrobust data management. \nThus, organisations that master data management gain a decisive edge\nin  a  rapidly  evolving  market.  Ultimately,  ethical  data  usage  further\nsupports  compliance,  safeguards  customer  rights,  and  fosters\ntransparency, balancing innovation with responsibility."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 268,
+                "to": 287
+              }
+            }
+          },
+          "pageContent": "9\nwww.conectys.com\nWHITE PAPER\nKey Strategies for CX Innovation\nSelecting the most influential AI tools is essential. However, successfully integrating them into more\ncomplex  systems—while  ensuring  collaboration  and  delivering  practical,  real-world  benefits—is  just\nas  important.  Soon,  the  following  strategies  will  stand  out  as  key  drivers  of  customer  experience\ninnovation:\nPersonalisation Solutions1.\nPersonalisation engines powered by machine learning,\npredictive analytics, and real-time data processing are\nset to lead the charge. These systems deliver context-\naware experiences in real-time, dynamically adapting\nto  customer  needs.  Leveraging  data  to  predict\npreferences, recommend tailored products or services,\nand optimise interactions is essential.\nHuman-like Interactions2.\nBy 2025, the fusion of generative AI, natural language\nprocessing  (NLP),  and  multimodal  AI  will  further\nrevolutionise customer engagement. These advanced"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 284,
+                "to": 305
+              }
+            }
+          },
+          "pageContent": "Human-like Interactions2.\nBy 2025, the fusion of generative AI, natural language\nprocessing  (NLP),  and  multimodal  AI  will  further\nrevolutionise customer engagement. These advanced\ntechnologies  will  empower  chatbots  and  voice\nassistants to conduct conversations that closely mimic\nhuman  interactions,  understanding  and  responding\nto  increasingly  complex  queries.  They  will  deliver\nnuanced, context-aware, and personalised responses\nby  interpreting  context,  intent,  and  emotional  cues\nbeyond simple keyword matching. Furthermore, real-\ntime translation and localisation will help companies\nbreak  down  language  barriers,  enabling  seamless,\ninclusive,  and  globally  connected  service  that\nstrengthens customer relationships.\nChatbots enable human assistants\nto concentrate on more complex\nconversations, boosting productivity\nby 15% to 30% (Gartner).\nAI and RPA can decrease the time\nservice employees spend on routine\nduties by up to 40%, depending on"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 300,
+                "to": 317
+              }
+            }
+          },
+          "pageContent": "to concentrate on more complex\nconversations, boosting productivity\nby 15% to 30% (Gartner).\nAI and RPA can decrease the time\nservice employees spend on routine\nduties by up to 40%, depending on\nthe technology used (Kearney).\nAutonomous Decision-Making Systems (Agentic AI)3.\nThe next frontier in CX lies in Agentic AI—systems that autonomously make decisions and adapt on the spot.\nThese advanced solutions analyse vast datasets, uncover patterns, and take proactive actions to enhance the\nbuyer journey. For example, they can prioritise and reroute urgent tickets, personalise offers through predictive\ninsights, or escalate complex issues to human agents when needed. Operating independently yet responsively,\nAgentic AI helps drive efficiency, reduce response times and ensure seamless, satisfying experiences.\nAn AI assistant that helps support\nagents create personalised\nresponses can boost productivity by\n30% to 50% (Conectys).\nConversational AI Solutions4."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 313,
+                "to": 322
+              }
+            }
+          },
+          "pageContent": "An AI assistant that helps support\nagents create personalised\nresponses can boost productivity by\n30% to 50% (Conectys).\nConversational AI Solutions4.\nConversational  AI  is  another  transformative  force  in  CX,  enabling  systems  to  engage  naturally  with\ncustomers  through  chatbots  and  voice  assistants.  Leveraging  advanced  NLP,  these  solutions  provide\ninstant responses, resolve issues, and personalise interactions across channels. They adapt to context, learn\nfrom past interactions, and escalate complex cases to human agents, blending automation with empathy.\nThe result? Enhanced efficiency, reduced costs, and elevated customer satisfaction."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 324,
+                "to": 339
+              }
+            }
+          },
+          "pageContent": "10\nwww.conectys.com\nWHITE PAPER\nAugmented Reality (AR) and Virtual Reality (VR) are set to revolutionise\nCX by creating immersive, interactive environments. These technologies\nallow users to experience products virtually, engage with digital brand\nstorytelling, and access real-time support in virtual spaces. In retail, for\nexample, AR enables shoppers to visualise products in their homes or try\non  clothes  virtually,  enhancing  decision-making  and  boosting\nsatisfaction. Beyond retail, industries such as healthcare, real estate, and\ntourism  are  also  tapping  into  the  potential  of  AR  and  VR.  As  these\ninnovations  advance  and  become  more  accessible,  immersive\ninteractions  will  be  a  key  differentiator  for  brands  seeking  to  offer\nmemorable and unique CX.\nPredictive Customer Engagement\nPowered by predictive analytics, companies will focus more on forecasting client behaviours and needs"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 337,
+                "to": 347
+              }
+            }
+          },
+          "pageContent": "memorable and unique CX.\nPredictive Customer Engagement\nPowered by predictive analytics, companies will focus more on forecasting client behaviours and needs\nwith  increasing  accuracy,  enabling  instant,  personalised  responses  that  enhance  loyalty  and  retention.\nUnlike  traditional  methods,  predictive  analytics  uses  advanced  algorithms  and  machine  learning  to\nanticipate future trends, allowing CX managers to address buyer pain points proactively. Key applications\ninclude predicting customer preferences for tailored recommendations, identifying signs of churn to take\nproactive measures, maximising client lifetime value through targeted engagement, optimising service\nefficiency by prioritising support tasks and enhancing digital experiences by customising websites and\napps based on user preferences. These tools will keep businesses ahead of trends and evolving market\ndynamics, particularly in the most dynamic industries, like e-commerce, telecom or finance."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 346,
+                "to": 359
+              }
+            }
+          },
+          "pageContent": "apps based on user preferences. These tools will keep businesses ahead of trends and evolving market\ndynamics, particularly in the most dynamic industries, like e-commerce, telecom or finance.\nImmersive CX (AR/VR)\nProactive CX\nProactive  customer  care  helps  anticipate  needs  and  address  issues\nbefore  they  arise,  enhancing  convenience  and  satisfaction.  When\nexecuted  effectively,  it  transforms  potential  frustration  into  loyalty,\nbecoming  a  key  CX  accelerator  that  should  be  integrated  into  every\nstrategy.   True   forward-thinking   support   relies   on   empathy,\ntransparency, and precision. Data-driven insights, powered by advanced\nanalytics and AI, are indispensable for recognising patterns, predicting\nneeds,  and  delivering  timely  solutions.  Without  these,  businesses  risk\nmissing opportunities or alienating customers.\nAI Ethics and Bias Mitigation Solutions"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 357,
+                "to": 372
+              }
+            }
+          },
+          "pageContent": "needs,  and  delivering  timely  solutions.  Without  these,  businesses  risk\nmissing opportunities or alienating customers.\nAI Ethics and Bias Mitigation Solutions\nAddressing ethical concerns and mitigating algorithmic prejudice will be crucial as AI continues to reshape\nCX. Organisations must implement strategies that ensure fairness, transparency, and accountability in AI-\ndriven systems. These solutions will help prevent bias in decision-making, comply with evolving regulations,\nand maintain customer trust. Organisations can meet regulatory standards and foster stronger brand-\nconsumer relationships by prioritising ethical AI use—such as leveraging diverse training data, conducting\nregular audits, and adopting explainable AI.\n5.\n6.\n7.\n8.\nFor example, a travel agency that rebooks flights, provides meal\nvouchers and updates hotel reservations during delays demonstrates\nthe power of timely, thoughtful intervention. In contrast, poorly"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 370,
+                "to": 375
+              }
+            }
+          },
+          "pageContent": "For example, a travel agency that rebooks flights, provides meal\nvouchers and updates hotel reservations during delays demonstrates\nthe power of timely, thoughtful intervention. In contrast, poorly\nimplemented measures—such as late notifications, generic updates,\nor empty promises—can frustrate rather than help, eroding trust and\ngoodwill."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 377,
+                "to": 390
+              }
+            }
+          },
+          "pageContent": "11\nwww.conectys.com\nWHITE PAPER\nTransformation of Interactions\nThe rise of AI in CX is redefining interactions and reshaping the role of human agents. By anticipating needs\nand  delivering  adaptive,  human-like  experiences,  companies  will  set  a  new  standard  for  personalised,\nseamless  engagement  that  fosters  loyalty.  On  the  other  hand,  AI  will  empower  human  agents  by\nautomating routine tasks, enabling focus on empathy-driven interactions.\nTools like real-time sentiment analysis and AI suggestions will boost agent confidence and productivity,\ndriving  more  meaningful  conversations.  The  result?  Enhanced  employee  well-being,  satisfaction,  and\nmotivation, alongside elevated customer loyalty.\nWorth Expanding More in Depth: From Personalisation\nto Hyper-Personalisation\nHyper-personalisation will be at the heart of tech empowerment, redefining CX strategies by creating"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 388,
+                "to": 399
+              }
+            }
+          },
+          "pageContent": "Worth Expanding More in Depth: From Personalisation\nto Hyper-Personalisation\nHyper-personalisation will be at the heart of tech empowerment, redefining CX strategies by creating\nexperiences that feel uniquely intuitive and individualised. This approach marks a shift from traditional\npersonalisation,  diving  deeper  into  the  granular  details  by  utilising  real-time  data  and  advanced\ntechnologies that collaborate to meet customer needs dynamically. \nThe  benefits  of  hyper-personalisation  are  significant.  These  include  enhanced  satisfaction  metrics  like\nCustomer Satisfaction (CSAT) and Customer Effort Score (CES), leading to stronger customer loyalty and\nincreased revenue potential.\nThis is how hyper-personalisation works — step by step. Its key components encompass:\nHyper-personalisation enables seamless and dynamic integration of current data, like the customer's\npresent location, immediate behaviour, and contextual information, to provide exceptionally tailored"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 399,
+                "to": 411
+              }
+            }
+          },
+          "pageContent": "present location, immediate behaviour, and contextual information, to provide exceptionally tailored\ninteractions beyond generic customisation.\n1. Data Collection and Integration\nAdvanced AI technologies, such as machine learning, deep learning, and natural language processing\n(NLP),  can  be  utilised  to  process  and  analyse  this  data.  These  technologies  adapt  to  customer\npreferences and predict emotional states, enabling more accurate and responsive experiences.\n2. AI Technologies and Analysis\nAI-driven engines dynamically adjust the customer journey based on real-time data. They provide\npersonalised  content,  recommendations,  and  offers,  responding  to  shopper  behaviours  as  they\nhappen without relying on static rules.\n3. Personalisation Engines\n4. Sentiment Analysis and Predictive Tools\nRelying on sentiment analysis that uses NLP and machine learning allows businesses to focus on the real-"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 409,
+                "to": 414
+              }
+            }
+          },
+          "pageContent": "3. Personalisation Engines\n4. Sentiment Analysis and Predictive Tools\nRelying on sentiment analysis that uses NLP and machine learning allows businesses to focus on the real-\ntime assessment of emotions and immediate needs based on customer interactions, such as through text\nor voice. This helps better understand the mood or tone the individual expresses, predict their next actions\nor needs, and enable timely and proactive support."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 416,
+                "to": 430
+              }
+            }
+          },
+          "pageContent": "12\nwww.conectys.com\nWHITE PAPER\n5. Dynamic Response and Anticipation\nThis functionality goes further by anticipating customer needs over time and continuously learning from\npast interactions to predict and address needs before they are explicitly stated. It emphasises long-term\nadaptation to evolving preferences.\n6. Customer Segmentation Tools\nMoreover, hyper-personalisation can offer customer segmentation tools to build fine-grained groups based\non customer characteristics, behaviours, and preferences, facilitating the more effective delivery of tailored\nexperiences and content to specific segments.\n7. NLP in Communication\nIt  is  about  empowering  systems  (such  as  chatbots,  voice  assistants,  and  customer  service  platforms)  to\ninterpret  and  respond  to  language  in  a  human-like  manner,  enhancing  communication  by  being\ncontextually  aware  and  intuitive.  These  technologies  collectively  ensure  that  each  customer  receives"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 430,
+                "to": 438
+              }
+            }
+          },
+          "pageContent": "contextually  aware  and  intuitive.  These  technologies  collectively  ensure  that  each  customer  receives\ncommunications  and  support  that  are  not  only  relevant  but  also  timely  and  empathetic,  creating  a\nseamless and satisfying buyer journey.\nGaming Use Case\nGaming  recommendations  are  broad  in  standard  personalisation,  relying  on  generic  user\npreferences such as favourite genres or popular titles. With hyper-personalisation, a player's in-\ngame behaviour, expectations, and emotions are analysed, allowing the entertainment platform\nto  offer  a  tailored  experience  with  real-time  adjusted  storylines,  suitable  difficult  levels,  and\nchallenges that match the player's unique preferences and emotional state."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 440,
+                "to": 451
+              }
+            }
+          },
+          "pageContent": "13\nwww.conectys.com\nWHITE PAPER\nThe core advantage of omnichannel is the ability to switch effortlessly between platforms—mobile apps,\nsocial media, live chat, phone, or in-store—ensuring continuity and eliminating friction. Customers should\nbe able to continue their conversations, whether starting on a mobile app or transitioning to a phone call,\nwithout losing context. This requires systems that capture and store interaction history, enabling agents to\npick up where the customer left off, regardless of the channel. This fluidity is key to customer satisfaction,\npreventing them from having to repeat themselves or restart their interactions.\nBusinesses  can  tailor  communications  based  on  customer  preferences,  purchase  history,  and  past\ninteractions  by  integrating  various  engagement  points  into  a  single  platform.  Powered  by  AI,\npersonalisation at scale allows companies to automatically execute targeted campaigns, delivering more"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 451,
+                "to": 465
+              }
+            }
+          },
+          "pageContent": "personalisation at scale allows companies to automatically execute targeted campaigns, delivering more\nrelevant and timely messages that resonate with customers.\nWhen customers engage through two or more channels, their level of engagement \nis 166% higher than those interacting through a single channel (Source: Deloitte).\nOmnichannel Consistency\nOmnichannel  is  crucial  in  customer  support,  serving  as  a\ncentral  hub  for  CX  operations,  interactions,  and  touchpoints.\nThis  trend  will  continue  to  gain  momentum  as  businesses\nprioritise  seamless,  integrated  experiences  with  guaranteed\nconsistency.   Omnichannel   solutions   enable   companies   to\ndeliver    personalised,    context-rich    interactions    across    all\nchannels  by  bridging  the  gap  between  digital  and  physical\nspaces.\nOmnichannel Must-Have Options\nFirms must enhance their strategies with key elements, processes, and solutions to reach the next level"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 463,
+                "to": 476
+              }
+            }
+          },
+          "pageContent": "spaces.\nOmnichannel Must-Have Options\nFirms must enhance their strategies with key elements, processes, and solutions to reach the next level\nof omnichannel success. The core functions include:\n1.  Unified  Customer  Data: The modern multi-channel CRM system is a cornerstone to integrate all\nengagement  touchpoints  (phone,  email,  SMS,  social  media,  etc.),  providing  businesses  with  a\ncomprehensive view of the customer journey. This enables tailored responses based on preferences and\npast interactions.\n2.  Consistency  Across  Touchpoints: It is crucial to deliver uniform service quality across all channels.\nAligning  processes,  tone,  and  standards  fosters  a  cohesive  brand  voice  and  ensures  a  seamless\nexperience.\n3.   Real-Time   Data   and   Insights: AI-driven  systems  are  another  important  element.  They  allow\ncompanies to capture and analyse interactions promptly, helping identify and address issues quickly\nwhile improving service delivery."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 478,
+                "to": 493
+              }
+            }
+          },
+          "pageContent": "14\nwww.conectys.com\nWHITE PAPER\n4. AI and Automation Integration: AI  algorithms  are  pivotal  to  enhancing  omnichannel  support  by\nautomating responses to common queries and evaluating customer data to predict needs. This enables\nbusinesses to resolve issues proactively and streamline experiences.\nUber Use Case\nUber enhances customer support efficiency and CSAT through a seamless omnichannel approach.\nTheir Policy Engine automates procedures across all communication channels, ensuring consistent\nsupport  via  in-app  self-serve,  emails,  chatbots,  IVR,  and  human  agents.  This  integration  allows\ncustomers  to  easily  transition  between  touchpoints,  maintaining  a  seamless  experience\nthroughout their journey.\n(Source: Uber Inc.)\nTrust and Safety: Non-Negotiables in the\nDigital Age\nAs  virtual  spaces  evolve  under  regulatory  frameworks  like  the  EU’s  AI  Act,  businesses  must"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 490,
+                "to": 504
+              }
+            }
+          },
+          "pageContent": "(Source: Uber Inc.)\nTrust and Safety: Non-Negotiables in the\nDigital Age\nAs  virtual  spaces  evolve  under  regulatory  frameworks  like  the  EU’s  AI  Act,  businesses  must\nintegrate  ethical  considerations  into  their  CX  strategies.  Balancing  innovation  with  social\nresponsibility is critical for maintaining trust and ensuring secure, transparent operations in 2025\nand beyond.\nProactive  governance  frameworks,  such  as  fairness-testing  tools  and\nethical  AI  boards,  safeguard  privacy,  ensure  transparency,  and  meet\nregulatory requirements. These measures position AI as a foundation for\nresponsible  customer  experiences  while  human  oversight  remains\nindispensable for guiding nuanced decisions and mitigating risks.\nOrganisations must adopt ethical data practices, including clear consent\nmechanisms and transparency around data ownership, to build consumer\ntrust. Interactive dashboards that empower users to control their data and"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 503,
+                "to": 512
+              }
+            }
+          },
+          "pageContent": "mechanisms and transparency around data ownership, to build consumer\ntrust. Interactive dashboards that empower users to control their data and\nAI  explainability  tools  clarify  decision-making  processes,  addressing\nconcerns about opaque algorithms. For example, explainability platforms\nin financial services can help clarify loan approvals, enhance loyalty, and\nreduce disputes.\nMitigating  biases  in  AI  models  is  equally  vital  to  ensuring  fairness  and\navoiding reputational risks. Tools like fairness tests and buyer suggestion\nportals   empower   individuals   to   voice   concerns   and   influence\nimprovements."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 514,
+                "to": 530
+              }
+            }
+          },
+          "pageContent": "15\nwww.conectys.com\nWHITE PAPER\nAdaptability is crucial for sustainable AI strategies. Businesses must\nrefine  approaches  to  align  with  evolving  regulations  and\ntechnological advancements, such as federated learning or privacy-\npreserving  AI.  Incorporating  energy-efficient  AI  models  or  carbon-\nneutral  data  centres  ties  ethical  AI  practices  to  environmental\nresponsibility, meeting consumer expectations for sustainability.\nEngaging  with  regulators  and  contributing  to  industry  standards\nhelps organisations navigate compliance challenges while fostering\ncollaborative solutions. Joining ethical AI consortia or forming cross-\nindustry alliances ensures businesses stay ahead of emerging trends\nand strengthen their competitive edge.\nIn this evolving landscape, prioritising responsible innovation ensures\nAI remains a tool for trust and growth rather than risk. Businesses that\nbalance technological progress with ethical responsibility will thrive in"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 529,
+                "to": 545
+              }
+            }
+          },
+          "pageContent": "AI remains a tool for trust and growth rather than risk. Businesses that\nbalance technological progress with ethical responsibility will thrive in\nthe years to come.\nThe Integration of Digital and Human Touchpoints\nAs we stride into the future, collaboration\nbetween  artificial  intelligence  and  human  agents\nforms   the   cornerstone   of   CX   excellence.   This\nsynergy  ensures  consumers  receive  the  best  of\nboth  worlds—the  efficiency  and  precision  of  AI\ncombined  with  the  empathy  and  understanding\nonly humans can provide. \nNevertheless, while intelligent systems are widely\nrecognized, appreciated, and increasingly\nadopted  in  customer  experience,  it  is  pivotal  to\nremember  that  they  can  only  partially  replicate\nthe full spectrum of CX operations.\nAI-driven  solutions  are  continually  transforming  CX  strategies.  These  technologies  enable  faster"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 543,
+                "to": 553
+              }
+            }
+          },
+          "pageContent": "remember  that  they  can  only  partially  replicate\nthe full spectrum of CX operations.\nAI-driven  solutions  are  continually  transforming  CX  strategies.  These  technologies  enable  faster\nresponse  times,  improved  personalization,  greater  agility,  and  more  precise  targeting.  For  instance,\nconversational AI delivers real-time and relevant information through advanced chatbots, streamlining\ninteractions while emulating human-like responsiveness.\nNevertheless, while AI greatly enhances efficiency and enables seamless customer journeys, it cannot\nfully replace human support in emotionally charged scenarios. Agents remain fundamental for building\ndeeper connections. Their involvement is indispensable in situations requiring personalized attention,\nnuanced  judgment,  and  nonstandard  solutions—particularly  when  addressing  complex  or  sensitive\nissues where technology cannot fully provide answers. This is how the synergy works:"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 555,
+                "to": 578
+              }
+            }
+          },
+          "pageContent": "16\nwww.conectys.com\nWHITE PAPER\nTechnology (Chatbots)\nHuman Agents\nEfficiently check order status, shipment details,\nor delivery times.\nResolve customer dissatisfaction or concerns\nwith tailored solutions.\nAddress common queries like business hours,\nreturn policies, or product specifications.\nAssist with sensitive issues, such as addressing\nhealth-related concerns tied to product use.\nConfirm reservations, flight details, or\naccommodations quickly in industries like\ntravel and hospitality.\nNavigate complex situations, like managing\nservice cancellations and showcasing human\nexpertise and understanding.\nThe  key  lies  in  achieving  a  harmonious  coexistence  where  AI  amplifies  human\ncapabilities,  enhancing  oversight  and  efficiency,  while  human  agents  provide\nirreplaceable compassion and nuanced decision-making. This balanced approach ensures\nCX initiatives remain dynamic, adaptive, and deeply connected to consumer expectations\n— a trend set to endure in the years ahead."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 577,
+                "to": 595
+              }
+            }
+          },
+          "pageContent": "CX initiatives remain dynamic, adaptive, and deeply connected to consumer expectations\n— a trend set to endure in the years ahead.\nAmazon Use Case\nAmazon, a global leader in online retail, harnesses\nadvanced AI algorithms to enhance convenience\nand elevate CX. This technology plays a crucial role\nacross various domains, including e-commerce,\ncustomer support, logistics, and warehousing. \nBy leveraging AI, Amazon anticipates customer\nneeds through personalized recommendations,\nempowers self-service options, and enables a\nhands-free shopping experience. While the\ncompany continues to invest in AI-driven\ninnovations, it also acknowledges the importance\nof human interaction. Amazon strongly\nemphasises customer service, ensuring customers\ncan connect directly with human representatives\nwhen required.\n(Sources: Amazon, Emerj)."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 597,
+                "to": 610
+              }
+            }
+          },
+          "pageContent": "17\nwww.conectys.com\nWHITE PAPER\nCX Metrics That Matter in the Future\nCritical  customer  experience  metrics  will  soon  evolve  to  reflect  both  traditional  and  emerging\nindicators, capturing consumers' shifting needs. They will gain capabilities to assess better buyer\nsatisfaction, loyalty, expectations, and service performance, focusing on response time, handling\ntime, and agent productivity.\nAs  companies  increasingly  adopt  customer-centric  strategies,  the  metrics  will  not  only  serve  as\nbenchmarks but also drive innovation, helping brands stay aligned with changing demands. They will\nalso  underscore  the  interconnectedness  of  technology,  human  effort,  and  operational  efficiency  in\ndelivering exceptional CX.\nCrucial  metrics  that  will  continue  to  hold  a  strong  position  include  First  Call  Resolution  (FCR),  Net\nPromoter Score (NPS), Customer Satisfaction (CSAT), and Voice of the Customer (VoC), among others."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 610,
+                "to": 628
+              }
+            }
+          },
+          "pageContent": "Promoter Score (NPS), Customer Satisfaction (CSAT), and Voice of the Customer (VoC), among others.\nThese indicators remain pivotal because they encapsulate key aspects of customer interactions, from\nthe efficiency of issue resolution to the overall loyalty and enjoyment customers feel towards a brand.\nNevertheless, what is essential is that AI algorithms\ncan  significantly  empower  these  metrics  by\nproviding  real-time  insights,  automating  data\ncollection, and enabling more precise analysis. This\ntechnological   integration   reduces   manual\nworkload and allows companies to act on insights\nfaster  and  more  accurately,  ensuring  they  can\nmeet and exceed evolving requirements.\nFor example:\nFirst Call Resolution: AI can analyse\ncustomer interactions and suggest\nknowledge articles or solutions that help\nagents resolve issues on the first contact,\nimproving FCR rates.\nAI-driven sentiment analysis can enhance\nNPS by automatically detecting customer"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 624,
+                "to": 639
+              }
+            }
+          },
+          "pageContent": "knowledge articles or solutions that help\nagents resolve issues on the first contact,\nimproving FCR rates.\nAI-driven sentiment analysis can enhance\nNPS by automatically detecting customer\nemotions and feedback, providing businesses\nwith deeper insights into customer loyalty.\nCustomer Satisfaction: \nAI can enable instant post-interaction\nsurveys and analyse responses to offer more\ngranular feedback, allowing businesses to\nact quickly on areas of improvement.\nVoice of the Customer: \nAI can aggregate and analyse data from various\ncustomer touchpoints to capture customer\nsentiment and provide actionable insights."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 641,
+                "to": 654
+              }
+            }
+          },
+          "pageContent": "18\nwww.conectys.com\nWHITE PAPER\nSummary\nIn the next twelve months and beyond, CX solutions will undergo a significant\ntransformation driven by the deeper integration of AI. As automation takes centre stage,\nhuman agents will see their roles evolve, with AI proactively anticipating customer needs\nand delivering adaptive, human-like experiences. This shift will make every interaction more\nrelevant, timely, and personalised. At the same time, automation and intelligent\nsuggestions will empower support teams to focus on complex, high-value tasks. \nThis synergy of technology and human expertise will elevate shopper engagement and\nenhance employee well-being and job satisfaction, fostering a more motivated and\nproductive workforce. Organisations that embrace these changes will be better equipped to\nstay ahead of the competition. The future of CX is not just promising; it’s transformative."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 656,
+                "to": 690
+              }
+            }
+          },
+          "pageContent": "19\nwww.conectys.com\nWHITE PAPER\nOver 4000 passionate\nprofessionals working in 9\noperational hubs worldwide,\nas well as EFH agents.\nExcellent services in 35+\nlanguages available 24/7.\nDeep expertise in social\nmedia, gaming, retail, e-\ncommerce, Fintech, travel\nand hospitality, startups,\nsoftware, streaming and more\ndomains.\nA FEW WORDS ABOUT CONECTYS\nConectys is a BPO vendor with an industry focus, a partnership mindset, and the right\nsize for expanding clients' brands internationally.\nOur Assets\nCustomer Experience\nWe have 20+ years of experience\nbuilding global outsourcing CX\nclient projects. We cover all stages,\nfrom strategising to setting up\ndigital-first omnichannel contact\ncentres in any location worldwide.\nContent Moderation\nWe provide real-time multilingual\nmoderation services for content,\nimages, and live-streaming videos\nacross social networks, blogs, apps,\nforums, chat rooms, proprietary\ncustomer channels, and beyond.\nData Annotation\nWe offer a 360° data annotation and"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 685,
+                "to": 695
+              }
+            }
+          },
+          "pageContent": "images, and live-streaming videos\nacross social networks, blogs, apps,\nforums, chat rooms, proprietary\ncustomer channels, and beyond.\nData Annotation\nWe offer a 360° data annotation and\nlabelling solution that ensures\nprecision, scalability, and efficiency\nthroughout the client data journey,\nempowering the development of\nethical, high-performing AI systems."
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "metadata": {
+            "source": "blob",
+            "blobType": "application/pdf",
+            "pdf": {
+              "version": "1.10.100",
+              "info": {
+                "PDFFormatVersion": "1.4",
+                "IsAcroFormPresent": false,
+                "IsXFAPresent": false,
+                "Title": "White Paper - Customer Service in 2025",
+                "Author": "Marketing - Conectys",
+                "Keywords": "DAGcvs86rWM,BAFlmPeLfIM",
+                "Creator": "Canva",
+                "Producer": "Canva",
+                "CreationDate": "D:20250128151353+00'00'",
+                "ModDate": "D:20250128151349+00'00'"
+              },
+              "metadata": null,
+              "totalPages": 20
+            },
+            "loc": {
+              "lines": {
+                "from": 697,
+                "to": 709
+              }
+            }
+          },
+          "pageContent": "Contact Us\nsales(@)conectys.com\ninfo(@)conectys.com\nwww.conectys.com\nHQ Address\nOne Cotroceni Business\nPark, Progresului 1,\nBucurești 050691,\nRomania\nUS - 1469 532 0215\nUK - 44 203 318 1593\nEU - 32 929 8011\nHK - 852 800 930 130"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 sec": {
+      "main": [
+        [
+          {
+            "node": "Reply message  ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 sec",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 4 sec1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 4 sec3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 4 sec4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply message  ": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 sec1": {
+      "main": [
+        [
+          {
+            "node": "Reply message  1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 sec3": {
+      "main": [
+        [
+          {
+            "node": "Reply message  3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply message  1": {
+      "main": [
+        [
+          {
+            "node": "Add label to message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply message  3": {
+      "main": [
+        [
+          {
+            "node": "Add label to message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 sec4": {
+      "main": [
+        [
+          {
+            "node": "Reply message  4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply message  4": {
+      "main": [
+        [
+          {
+            "node": "Add label to message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message4": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add label to message3": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "meta": {
+    "instanceId": "2a8466253336bf2e8f0dca50c3ead093ef6850899fdffe00e2b10a18ff329971"
+  },
+  "id": "pGRTbKen_bfATboZa0Lvu",
+  "tags": []
+}
