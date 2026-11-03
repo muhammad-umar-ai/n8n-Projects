@@ -1,0 +1,251 @@
+{
+  "name": "AI-Powered Product Research & SEO Content Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "options": {},
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "key",
+              "value": "your key"
+            },
+            {
+              "name": "cx",
+              "value": "your cx"
+            },
+            {
+              "name": "q",
+              "value": "=intitle:\"{{ $json.title }}\" (pricing OR features OR buy OR software) -medium.com -quora.com -youtube.com -linkedin.com "
+            }
+          ]
+        }
+      },
+      "id": "dfd9a940-d6d0-40c7-b93d-9fa6741c55e4",
+      "name": "Google Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1472,
+        352
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "functionCode": "let allTitles = [];\nlet allDescriptions = [];\nlet allKeywords = [];\n\nfor (const item of $json.items) {\n  allTitles.push(item.title);\n  allDescriptions.push(item.snippet);\n  const keywords = item.title.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '').split(' ').filter(w => w.length > 3);\n  allKeywords.push(...keywords);\n}\nconst uniqueKeywords = [...new Set(allKeywords)];\nreturn [{json:{chatInput:`Title List:\\n${allTitles.join('\\n')}\\n\\nDescription List:\\n${allDescriptions.join('\\n')}\\n\\nKeywords:\\n${uniqueKeywords.join(', ')}`.trim()}}];"
+      },
+      "id": "13053ac9-8fed-42d2-ab2c-e9f872590697",
+      "name": "Extract Competitor Data",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        1744,
+        368
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert SEO content writer and product copywriter. Generate the following in one output: 1. SEO Meta Data: Title (exact product title); Description (120-160 characters, persuasive and keyword-relevant); Keywords (relevant product keywords). 2. Product Content: Product Title (exactly the same as SEO title); Product Description (minimum 150 words, detailed and engaging, highlighting features, benefits and usage). Format exactly: --- SEO Meta Data: Title: ... Description: ... Keywords: ... Product Content: Product Title: ... Product Description: ... --- Avoid keyword stuffing and ensure both titles are identical."
+            }
+          ]
+        }
+      },
+      "id": "6ec9a074-81c5-4003-af59-f5c2674ef4f2",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1984,
+        368
+      ],
+      "typeVersion": 1.5
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "id": "07c73c1a-23d2-4a3c-a9cd-7d6c70d982ed",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        2016,
+        832
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "id": "a54ad3c1-b340-45b0-8d90-013df614f613",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2736,
+        336
+      ],
+      "typeVersion": 4.5
+    },
+    {
+      "parameters": {
+        "formTitle": "Product Research",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "title",
+              "placeholder": "Enter product title",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "43ad224f-7250-4304-81df-ddb80292bca2",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        896,
+        336
+      ],
+      "webhookId": "f7e2c20d-4cd1-45f1-b6f7-54eb48c2ad91",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39f794ce-8c11-4f72-b8d9-4ad0894d1e05",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "54b65c53-a9db-448d-8641-9172990b3a0e",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1184,
+        336
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputText = $json.text;\nfunction getFieldValue(text, field) {\n  const regex = new RegExp(field + ':\\\\s*([\\\\s\\\\S]*?)(?=\\\\n\\\\S|$)', 'i');\n  const match = text.match(regex);\n  return match ? match[1].trim() : '';\n}\nfunction splitSections(text) {\n  const seoMetaMatch = text.match(/SEO Meta Data:\\n([\\s\\S]*?)\\n\\nProduct Content:/i);\n  const productContentMatch = text.match(/Product Content:\\n([\\s\\S]*)/i);\n  const seoMeta = seoMetaMatch ? seoMetaMatch[1].trim() : '';\n  const productContent = productContentMatch ? productContentMatch[1].trim() : '';\n  return [\n    {json:{type:'seo_meta_data',title:getFieldValue(seoMeta,'Title'),description:getFieldValue(seoMeta,'Description'),keywords:getFieldValue(seoMeta,'Keywords'),product_title:'',product_description:''}},\n    {json:{type:'product_content',title:'',description:'',keywords:'',product_title:getFieldValue(productContent,'Product Title'),product_description:getFieldValue(productContent,'Product Description')}}\n  ];\n}\nreturn splitSections($input.first().json.text);"
+      },
+      "id": "0de7cf9b-8723-4330-8f26-3127bf1e530d",
+      "name": "Code Formatting",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2416,
+        368
+      ],
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Google Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search": {
+      "main": [
+        [
+          {
+            "node": "Extract Competitor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Competitor Data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code Formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Formatting": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "tags": []
+}
