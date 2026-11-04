@@ -1,0 +1,142 @@
+{
+  "name": "Analyze Landing Page with Gemini and Get Optimization Tips",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Conversion Rate Optimizer",
+        "formDescription": "Your Landing Page is Leaking Sales—Fix It Now",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Landing Page Url",
+              "placeholder": "https://example.com",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b266177e-9346-44bc-90ba-d7d0bcfd3e92",
+      "name": "Landing Page Url",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "REGENERATE_ON_IMPORT",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Landing Page Url'] }}",
+        "options": {}
+      },
+      "id": "b988c062-0223-4b3b-864d-30896f5af74c",
+      "name": "Scrape Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        208,
+        0
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional expert in Conversion Rate Optimization who helps business founders and CMOs improve their landing pages.\n\nGOAL\nAnalyze the supplied landing page content and provide two sections:\n1. Roast: a friendly, casual, detailed critique of the page, explaining what is unclear, unconvincing, or likely to create friction.\n2. Recommendations: exactly 10 specific, actionable CRO ideas tailored to the supplied page. Include concrete example copy or implementation details where possible. Tie each recommendation to an issue identified in the roast. Avoid generic advice.\n\nBe constructive, evidence-based, and clear. Do not invent page elements or performance metrics that are not present in the supplied content. If the scraped content is incomplete, state the limitation.\n\nLanding page content:\n{{ $json.data }}",
+        "options": {}
+      },
+      "id": "0912b940-8ce8-4525-892a-82e37879bcce",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        432,
+        0
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        384,
+        192
+      ],
+      "id": "7b6a3905-58d1-4818-bef1-a8d211e94182",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@example.com",
+        "subject": "Landing Page CRO Analysis",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        784,
+        16
+      ],
+      "id": "b39593d5-8bcf-4a07-8cdc-f45d13c89920",
+      "name": "Send a message"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Scrape Website": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Landing Page Url": {
+      "main": [
+        [
+          {
+            "node": "Scrape Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "tags": []
+}
