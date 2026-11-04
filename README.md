@@ -15,6 +15,12 @@ Built and maintained by **Muhammad Umar**, AI Automation Developer.
 | [AI Agents](./AI-Agents/) | AI assistants, prompt engineering, LLM-powered workflows |
 | [Lead Generation](./Lead-Generation/) | Prospect discovery, enrichment, lead research |
 | [Marketing Automation](./Marketing-Automation/) | Content, social media, and campaign workflows |
+
+## Featured projects
+
+- 🎯 [Landing Page CRO Analyzer with Gemini](./Marketing-Automation/Landing-Page-CRO-Analyzer/) — analyzes landing-page content and emails tailored CRO recommendations.
+- 🔎 [AI-Powered Product Research & SEO Content Automation](./SEO-Automation/AI-Powered-Product-Research-SEO-Content-Automation/) — competitor research and Gemini-generated SEO content.
+
 | [SEO Automation](./SEO-Automation/) | Technical and on-page SEO workflows |
 | [Business Automation](./Business-Automation/) | CRM, operations, and customer support |
 | [Data Automation](./Data-Automation/) | Data processing, reporting, and spreadsheet workflows |
