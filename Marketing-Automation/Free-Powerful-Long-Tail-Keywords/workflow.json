@@ -1,0 +1,372 @@
+{
+  "name": "Free PowerfuII Iong-taiI Keywords",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        -176
+      ],
+      "id": "93356692-0b30-43f3-9ddb-108505a1a8cc",
+      "name": "When chat message received",
+      "webhookId": "REGENERATE_ON_IMPORT"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Act as an SEO strategist.\nGenerate 10 short SEO seed keywords for the niche \"{{ $json.chatInput }}\".\n\nRules:\n\nEach keyword must be 2–3 words only.\n\nFocus on topics that can expand into profitable long-tail search terms.\n\nAvoid any explanations, extra text, or formatting.\n\nEach keyword must be returned as a separate JSON object on its own line.\n\nThe output must be valid JSON Lines (JSONL) format, like this:\n\n{\"keyword\": \"travel tips\"}\n{\"keyword\": \"cheap flights\"}\n{\"keyword\": \"travel insurance\"}\n\nDo not wrap them in an array.\nDo not include brackets, commas, or quotes around the full output.\nOnly 10 JSON objects, one per line."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -176
+      ],
+      "id": "4652d2ec-8bd8-48af-b97e-d42fae18167b",
+      "name": "Senior SEO seed word finder"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the raw text from the AI output\nconst raw = $json.content?.parts?.[0]?.text || \"\";\n\n// Split by newline and clean up each line\nconst lines = raw\n  .split(\"\\n\")\n  .map(l => l.trim())\n  .filter(l => l.startsWith(\"{\") && l.endsWith(\"}\"));\n\n// Parse each line as JSON object\nreturn lines.map(l => ({ json: JSON.parse(l) }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -128
+      ],
+      "id": "2ae3a9fd-303e-43db-986d-ff02b9af4e81",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "e917b403-3f40-4d0b-9dff-51dafbcfb4e8",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\n\nfor (const item of items) {\n  const raw = item.json.data || \"\";\n  let arr;\n  try {\n    arr = typeof raw === \"string\" ? JSON.parse(raw) : raw;\n  } catch (e) {\n    throw new Error(\"Data is not valid JSON\");\n  }\n\n  const suggestions = Array.isArray(arr?.[1]) ? arr[1] : [];\n\n  for (const kw of suggestions) {\n    out.push({ json: { keyword: kw } });\n  }\n}\n\nreturn out;\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        128
+      ],
+      "id": "d26c2a22-a61e-4e28-ab22-1d96cf404ba0",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the raw text from the AI output\nconst raw = $json.content?.parts?.[0]?.text || \"\";\n\n// Split by newline and clean up each line\nconst lines = raw\n  .split(\"\\n\")\n  .map(l => l.trim())\n  .filter(l => l.startsWith(\"{\") && l.endsWith(\"}\"));\n\n// Parse each line as JSON object\nreturn lines.map(l => ({ json: JSON.parse(l) }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        208
+      ],
+      "id": "74ece2c6-a9f6-44c5-8e17-a14417681bb0",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_GOOGLE_SHEET_NAME"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "category": "={{ $('When chat message received').item.json.chatInput }}",
+            "keywords": "={{ $('Code in JavaScript').item.json.keyword }}",
+            "seed keywords": "={{ $('Code in JavaScript1').item.json.keyword }}",
+            "long-tail keywords": "={{ $json.longtail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keywords",
+              "displayName": "keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seed keywords",
+              "displayName": "seed keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "long-tail keywords",
+              "displayName": "long-tail keywords",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1664,
+        256
+      ],
+      "id": "39562e77-ed3f-4f74-990e-eb0635d0f3f4",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "url": "=https://suggestqueries.google.com/complete/search?client=firefox&q=%7B{{ $json.keyword }}%7D",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        64
+      ],
+      "id": "535c766f-aede-4975-8e9c-2b5458bd2a7b",
+      "name": "Seed Keywords"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Act as a senior SEO keyword strategist.\nYour task is to create 5 long-tail keywords from the base keyword \"{{ $json.keyword }}\".\n\nRules:\n\nEach keyword must be 4–8 words.\n\nAdd clear search intent words such as “best,” “cheap,” “guide,” “ideas,” “for,” “2025,” “cost,” “top,” or “comparison.”\n\nTarget high-RPM intent—topics that attract commercial advertisers (travel bookings, insurance, finance, gadgets, education, software, healthcare, etc.).\n\nInclude a mix of informational, commercial, and transactional search phrases.\n\nAvoid duplicates or vague results.\n\nReturn clean JSON only in this format (no array, no notes):\n\n{\"longtail\": \"best travel destinations in december for couples\"}\n{\"longtail\": \"cheap warm travel destinations in december 2025\"}\n{\"longtail\": \"travel destinations in december in asia\"}\n{\"longtail\": \"top winter travel destinations in europe 2025\"}\n{\"longtail\": \"best budget travel destinations for december holidays\"}",
+              "role": "=user"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        192
+      ],
+      "id": "8db0875d-1b8c-48f3-9fc8-1e86b9e5ce7c",
+      "name": "Iong-taiI keywords"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        880,
+        128
+      ],
+      "id": "5ecd8e79-468f-495a-9ddf-93e38fc30177",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1872,
+        256
+      ],
+      "id": "e2423890-c3d4-42ff-be50-8d8722494071",
+      "name": "Wait",
+      "webhookId": "REGENERATE_ON_IMPORT"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Senior SEO seed word finder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Senior SEO seed word finder": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Seed Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seed Keywords": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iong-taiI keywords": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Iong-taiI keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
